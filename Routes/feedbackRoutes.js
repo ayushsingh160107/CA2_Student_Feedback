@@ -74,7 +74,7 @@ router.get("/",async(req,res)=>{
 
 router.patch('/:id',async(req,res)=>{
     try{
-        const{id}=req.params.id.trim();
+        const id=req.params.id.trim();
         const{status}=req.body;
         console.log("PATCH hit. ID:", JSON.stringify(id), "Status:", status);
         if (!["Pending","Reviewed"].includes(status)) {
