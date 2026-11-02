@@ -74,50 +74,27 @@ router.get("/",async(req,res)=>{
 
 router.patch('/:id',async(req,res)=>{
     try{
-        const{id}=parseInt(req.params.id);
+        const{id}=req.params.id.trim();
         const{status}=req.body;
-        if(!mongoose.Types.ObjectId.isValid(id)){
+        console.log("PATCH hit. ID:", JSON.stringify(id), "Status:", status);
+        if (!["Pending","Reviewed"].includes(status)) {
             return res.status(400).json({
-                status:false,
-                message:"Invalid Feedback ID"
-            })
+                success:false,
+                message:"status must be 'Pending' or 'Reviewed'"});
         }
-
+        const feedback=await Feedback.findByIdAndUpdate(id,{status},{new:true});
+        if(!feedback){
+            return res.status(404).json({ success: false, message: "Feedback not found" });
+        }
+        res.status(200).json({
+            success: true,
+            message:
+            "Status updated",
+            data:feedback});
+    }catch(err){
+        res.status(500).json({
+            success:false,
+            message:err.message });
     }
 })
-
-
-
-
-
-
-
-
-
-
-
-
-
-  try {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ success: false, message: "Invalid feedback ID" });
-    }
-    if (!["Pending", "Reviewed"].includes(status)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "status must be 'Pending' or 'Reviewed'" });
-    }
-
-    const feedback = await Feedback.findByIdAndUpdate(id, { status }, { new: true });
-
-    if (!feedback) {
-      return res.status(404).json({ success: false, message: "Feedback not found" });
-    }
-
-    res.status(200).json({ success: true, message: "Status updated", data: feedback });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
-
 module.exports = router;
